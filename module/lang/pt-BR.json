@@ -87,6 +87,10 @@
       "DeleteStores": {
         "Name": "Excluir o ator junto com o contêiner",
         "Hint": "Ao excluir um contêiner ou uma pilha da cena (a região ou o tile correspondente), também exclui o ator associado na pasta de contêineres. Desativado: o ator permanece e precisa ser removido manualmente."
+      },
+      "SearchMenu": {
+        "Name": "Disponibilizar \"Vasculhar os arredores\"",
+        "Hint": "Adiciona a ação \"Vasculhar os arredores\" ao menu de contexto do próprio token. Desmarcado: a ação deixa de aparecer no menu, mas objetos ocultos ainda são encontrados pela Percepção passiva. Útil principalmente para exploração de masmorras."
       }
     },
     "Lock": {
