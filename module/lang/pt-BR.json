@@ -78,7 +78,7 @@
       },
       "SearchCooldown": {
         "Name": "Intervalo entre buscas",
-        "Hint": "Fora de combate, minutos de tempo do mundo necessários para o mesmo personagem usar \"Vasculhar os arredores\" novamente (0: sem intervalo). Em combate, vasculhar consome uma ação."
+        "Hint": "Fora de combate, minutos de tempo do mundo ou de tempo real, o que passar primeiro, antes de o mesmo personagem poder usar \"Vasculhar os arredores\" novamente (0: sem intervalo). Em combate, vasculhar consome uma ação."
       },
       "SearchDuration": {
         "Name": "Duração da busca",
@@ -87,6 +87,14 @@
       "DeleteStores": {
         "Name": "Excluir o ator junto com o contêiner",
         "Hint": "Ao excluir um contêiner ou uma pilha da cena (a região ou o tile correspondente), também exclui o ator associado na pasta de contêineres. Desativado: o ator permanece e precisa ser removido manualmente."
+      },
+      "SearchMenu": {
+        "Name": "Disponibilizar \"Vasculhar os arredores\"",
+        "Hint": "Adiciona a ação \"Vasculhar os arredores\" ao menu de contexto do próprio token. Desmarcado: a ação deixa de aparecer no menu, mas objetos ocultos ainda são encontrados pela Percepção passiva. Útil principalmente para exploração de masmorras."
+      },
+      "AdvancedTraps": {
+        "Name": "Modo avançado de armadilhas",
+        "Hint": "Fora de combate, uma armadilha acionada pausa o jogo e inicia um combate com as criaturas da cena (personagens dos jogadores ficam Surpreendidos se ninguém a tiver percebido); a armadilha age na própria Iniciativa (20 por padrão). Em combate, a Iniciativa não é rolada novamente. Em ambos os casos, não há rolagem automática: o mestre concede Vantagem ou Desvantagem a cada criatura na área e então aciona a armadilha. Desativado: a armadilha atinge os alvos imediatamente."
       }
     },
     "Lock": {
@@ -458,7 +466,8 @@
         "Inscription": "Você percebe uma inscrição.",
         "SecretDoor": "Você percebe uma porta secreta.",
         "Trap": "Você percebe uma armadilha.",
-        "Something": "Você percebe algo."
+        "Something": "Você percebe algo.",
+        "TrapSource": "Você percebe de onde vem o efeito de uma armadilha."
       },
       "Wall": {
         "Legend": "DAS · Oculto",
@@ -480,7 +489,7 @@
       }
     },
     "TrapZone": {
-      "Hint": "Um token que entra na região aciona a armadilha: o ator da armadilha usa sua atividade nos tokens da área de efeito (resolvida pelo sistema de combate). Oculta por padrão; ao ser descoberta, aparece em vermelho, o cálculo de caminhos do sistema de combate passa a evitá-la e ela pode ser desarmada com um clique (ferramentas de ladrão).",
+      "Hint": "Coloque este comportamento na área de efeito da armadilha (o corredor atingido pelo fogo ou a própria placa): ela contém toda a armadilha. Um token que entra em seu gatilho (esta região ou outra selecionada no mapa) aciona a armadilha: o ator da armadilha usa sua atividade nos tokens da área de efeito (resolvida pelo sistema de combate). O gatilho e a origem são encontrados separadamente; um gatilho descoberto aparece em vermelho e o cálculo de caminhos do sistema de combate passa a evitá-lo; uma origem descoberta aparece em vermelho, com a área de efeito em laranja. Qualquer um dos dois permite desarmar a armadilha com um clique (ferramentas de ladrão).",
       "FIELDS": {
         "actor": {
           "label": "Ator da armadilha",
@@ -491,8 +500,8 @@
           "hint": "ID da atividade utilizada. Em branco: a atividade cuja faixa de níveis (\"Níveis 5–10\") inclua o nível dos alvos (nível do personagem mais alto ou, se não houver, maior ND); caso contrário, a primeira."
         },
         "effectRegion": {
-          "label": "Área de efeito",
-          "hint": "UUID de outra região da cena (o corredor atingido pelo jato de fogo). Em branco: esta região. Permanece oculta para jogadores."
+          "label": "Área de efeito (0.16.0)",
+          "hint": "Deixada pela versão 0.16.0, quando a armadilha ficava na placa: lida uma única vez para mover a armadilha para esta área."
         },
         "height": {
           "label": "Altura",
@@ -523,6 +532,61 @@
         "disarmed": {
           "label": "Desarmada",
           "hint": "Desmarque para restaurá-la (marque também \"Armada\")."
+        },
+        "triggerRegion": {
+          "label": "Gatilho",
+          "hint": "A região em que um token precisa entrar (a placa de pressão), selecionada no mapa. Em branco: esta região."
+        },
+        "minSize": {
+          "label": "Tamanho mínimo",
+          "hint": "A menor criatura que aciona a armadilha. Pequeno por padrão: um rato ou um familiar Minúsculo passa por cima sem acioná-la."
+        },
+        "source": {
+          "label": "Origem",
+          "hint": "De onde vem o efeito (os orifícios na parede, a estátua).",
+          "uuid": {
+            "label": "Origem",
+            "hint": "Uma região ou um tile da cena, selecionado no mapa. Em branco: o próprio gatilho. Depois de descoberta, a área de efeito também é exibida."
+          },
+          "hidden": {
+            "label": "Origem oculta",
+            "enabled": {
+              "label": "Oculta",
+              "hint": "A origem não pode ser vista até que um personagem a encontre (Percepção passiva ou \"Vasculhar os arredores\"). Tem sua própria CD: encontrar a origem não revela o restante."
+            },
+            "skill": {
+              "label": "Perícia",
+              "hint": "A perícia que permite encontrá-la: Percepção ou Investigação."
+            },
+            "dc": {
+              "label": "CD de detecção",
+              "hint": "Valor passivo ou rolagem de busca a atingir."
+            },
+            "passive": {
+              "label": "Distância passiva",
+              "hint": "Em pés (convertida em cenas que usam metros). 0: sem detecção passiva."
+            },
+            "radius": {
+              "label": "Raio de busca",
+              "hint": "Distância máxima de uma busca ativa, em pés."
+            },
+            "found": {
+              "label": "Encontrada",
+              "hint": "Desmarque para ocultá-la novamente; as tentativas são apagadas."
+            },
+            "text": {
+              "label": "Texto de descoberta",
+              "hint": "O que lê o jogador que a encontra. Em branco: um texto genérico."
+            }
+          }
+        },
+        "initiative": {
+          "label": "Iniciativa",
+          "hint": "Sua posição na Iniciativa no modo avançado de armadilhas: 20 por padrão; menor para uma armadilha lenta (um teto que desce)."
+        },
+        "hidden": {
+          "label": "Gatilho oculto",
+          "hint": "Como o gatilho (a placa) é encontrado. A origem tem sua própria detecção."
         }
       },
       "Rearm": {
@@ -661,6 +725,53 @@
               "label": "Texto de descoberta",
               "hint": "O que lê o jogador que a encontra. Vazio: \"Você nota uma armadilha.\""
             }
+          },
+          "minSize": {
+            "label": "Tamanho mínimo",
+            "hint": "A menor criatura que aciona a armadilha ao abrir o objeto. Pequeno por padrão."
+          },
+          "initiative": {
+            "label": "Iniciativa",
+            "hint": "Sua posição na Iniciativa no modo avançado de armadilhas (20 por padrão)."
+          },
+          "source": {
+            "label": "Origem",
+            "hint": "De onde vem o efeito, se não for do próprio contêiner.",
+            "uuid": {
+              "label": "Origem",
+              "hint": "Uma região ou um tile da cena, selecionado no mapa. Em branco: o próprio contêiner."
+            },
+            "hidden": {
+              "label": "Origem oculta",
+              "enabled": {
+                "label": "Oculta",
+                "hint": "A origem não pode ser vista até que um personagem a encontre (Percepção passiva ou \"Vasculhar os arredores\"). Tem sua própria CD: encontrar a origem não revela o restante."
+              },
+              "skill": {
+                "label": "Perícia",
+                "hint": "A perícia que permite encontrá-la: Percepção ou Investigação."
+              },
+              "dc": {
+                "label": "CD de detecção",
+                "hint": "Valor passivo ou rolagem de busca a atingir."
+              },
+              "passive": {
+                "label": "Distância passiva",
+                "hint": "Em pés (convertida em cenas que usam metros). 0: sem detecção passiva."
+              },
+              "radius": {
+                "label": "Raio de busca",
+                "hint": "Distância máxima de uma busca ativa, em pés."
+              },
+              "found": {
+                "label": "Encontrada",
+                "hint": "Desmarque para ocultá-la novamente; as tentativas são apagadas."
+              },
+              "text": {
+                "label": "Texto de descoberta",
+                "hint": "O que lê o jogador que a encontra. Em branco: um texto genérico."
+              }
+            }
           }
         }
       },
@@ -690,8 +801,41 @@
         "DisarmDc": "CD para desarmar (ferramentas de ladrão)",
         "Failure": "Falha ao desarmar",
         "Disarmed": "Desarmada",
-        "HiddenEnabled": "Armadilha oculta"
+        "HiddenEnabled": "Armadilha oculta",
+        "MinSize": "Tamanho mínimo (menor criatura que a aciona)",
+        "Initiative": "Iniciativa (modo avançado)",
+        "Source": "Origem (UUID de região ou tile; em branco: a porta)",
+        "SourceHidden": "Origem oculta"
+      },
+      "Token": {
+        "Legend": "DAS · Armadilha",
+        "Hint": "Esta criatura é uma armadilha (uma armadilha do Livro do Mestre 2024 ou qualquer NPC que você marcar aqui). Seu token colocado na cena é a armadilha: oculto para os jogadores, ele é acionado quando uma criatura entra nas casas que ocupa (ou no gatilho selecionado abaixo) e atinge as criaturas nessas casas (ou na área de efeito selecionada abaixo). Quando definidas no token de protótipo, estas configurações são copiadas para cada token colocado na cena; cada token colocado mantém seu próprio estado.",
+        "TriggerRegion": "Gatilho (UUID de região; em branco: as casas ocupadas pelo token)",
+        "EffectRegion": "Área de efeito (UUID de região; em branco: as casas ocupadas pelo token)",
+        "Height": "Altura (uma criatura que voe mais alto pode passar)",
+        "Source": "Origem (UUID de região ou tile; em branco: o token, quando o gatilho está em outro local)",
+        "HiddenEnabled": "Gatilho oculto",
+        "SourceHidden": "Origem oculta (o token, quando o gatilho está em outro local)",
+        "Region": "{name} (DAS · Armadilha)"
       }
+    },
+    "TrapWindow": {
+      "Title": "Armadilha: {name}",
+      "HintSave": "A armadilha vai atingir os alvos. Para cada criatura na área, favoreça sua salvaguarda (Vantagem) ou não (Desvantagem), conforme as ações dos jogadores, ou remova-a; em seguida, acione a armadilha.",
+      "HintAttack": "A armadilha vai atingir os alvos. Para cada criatura na área, favoreça-a (a jogada de ataque da armadilha contra ela tem Desvantagem) ou não (Vantagem), conforme as ações dos jogadores, ou remova-a; em seguida, acione a armadilha.",
+      "Nobody": "Não há mais ninguém na área de efeito.",
+      "Advantage": "Vantagem",
+      "Normal": "Normal",
+      "Disadvantage": "Desvantagem",
+      "Tier": "Faixa de níveis",
+      "Fire": "Acionar a armadilha",
+      "Cancel": "Cancelar a armadilha"
+    },
+    "Pick": {
+      "Button": "Selecionar no mapa",
+      "PromptRegion": "Clique em uma região no mapa (clique direito ou Escape: cancelar).",
+      "PromptTile": "Clique em uma região ou em um tile no mapa (clique direito ou Escape: cancelar).",
+      "Nothing": "Nada para selecionar nesse local."
     }
   },
   "TYPES": {
